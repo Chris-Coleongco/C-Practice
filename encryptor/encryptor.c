@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(void) {
 
@@ -11,11 +12,35 @@ int main(void) {
 
     char characterBuffer[1];
 
+    char *plaintext = malloc(1);
+
+    int capacity = 1;
+
+    int index = 0;
+
     while (fread(characterBuffer, 1, 1, pFile) == 1) {
-        printf("%c", characterBuffer[0]);
+
+        if (index >= capacity) {
+            plaintext = (char *)realloc(plaintext, capacity * sizeof(char));
+
+            if (plaintext == NULL) {
+                perror("memory allocation failed.");
+                free(plaintext);
+                return 1;
+            }
+
+            capacity++;
+        }
+
+        plaintext[index] = characterBuffer[0];
+
+        index++;
+
     }
 
     printf("\n");
+
+    printf("%s", plaintext);
 
     fclose(pFile);
 }
