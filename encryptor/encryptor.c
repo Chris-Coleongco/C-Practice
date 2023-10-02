@@ -24,7 +24,7 @@ int checkProgramMode(char userChoice[]) {
 
 int decryption(char key[]) {
 
-    printf("SHIFTER: %s", key);
+    printf("SHIFTER: %s\n", key);
 
     FILE *encryptedFile = fopen("PLAINTEXT.txt", "r");
 
@@ -35,33 +35,42 @@ int decryption(char key[]) {
     
     char characterBuffer[1];
 
-    char *decryptedText = malloc(1);
+    char *decryptedText = malloc(sizeof(char));
 
-    int capacity = 1;
+    int capacity = 0;
 
     int index = 0;
+    
+    int keyLen = strlen(key);
+
+    int keyInt = atoi(key);
+
+    printf("%d \n", keyLen);
+    printf("atoi: %d \n", keyInt);
 
     while (fread(characterBuffer, 1, 1, encryptedFile) == 1) {
 
         if (index >= capacity) {
-            decryptedText = (char *)realloc(decryptedText, capacity * sizeof(char));
-
-            if (decryptedText == NULL) {
-                perror("memory allocation failed.");
-                free(decryptedText);
-                return 1;
-            }
-
             capacity++;
+            decryptedText = (char *)realloc(decryptedText, capacity * sizeof(char));
+            
         }
 
         printf("%d \n", characterBuffer[0]);
 
-        decryptedText[index] = (characterBuffer[0]) / atoi(key);
+        
+
+        int keyIndex;
+
+        decryptedText[index] = (characterBuffer[0]) + (keyInt % 128);
+
+        printf(" %c", decryptedText[index]);
 
         index++;
 
     }
+
+    decryptedText[capacity] = '\0';
 
     printf("decrypted: %s", decryptedText);
 
@@ -89,7 +98,11 @@ int encryption(void) {
 
     srand(time(NULL) + getpid());
 
-    int asciiShifter = rand();
+    int asciiShifter;
+
+    do {
+        asciiShifter = rand();
+    } while(asciiShifter <= 0);
 
     size_t dataSize = sizeof(char);
 
@@ -103,7 +116,7 @@ int encryption(void) {
 
         }
 
-        encryptedText[index] = (characterBuffer[0]) - 1;
+        encryptedText[index] = (characterBuffer[0]) - (asciiShifter % 128);
 
         printf("%d %c\n", encryptedText[index], encryptedText[index]);
 
@@ -154,6 +167,7 @@ int main(int argc, char *argv[]) {
         encryption();
     }
     else if (selectedMode == 2) {
+        printf("%s\n", argv[2]);
         decryption(argv[2]);
     }
     else {
