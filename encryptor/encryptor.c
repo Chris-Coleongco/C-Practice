@@ -24,39 +24,48 @@ int checkProgramMode(char userChoice[]) {
 
 int decryption(char key[]) {
 
-    printf("key %s\n", key);
-    int index;
-    int shifterIndex;
-    int multiplierIndex;
-    int colonIndex;
+    printf("SHIFTER: %s", key);
 
-    int shifterCapacity = 1;
-    int multiCapacity = 1;
+    FILE *encryptedFile = fopen("PLAINTEXT.txt", "r");
 
-    //char asciiMultiplier = 
-
-    for (index = 0; key[index] != '\0'; index++) {
-
-        if (key[index] == ':') {
-            printf("found colon\n");
-            colonIndex = index;
-        }
-    }
-
-    char *shifter = (char *) malloc(colonIndex * sizeof(char));
-
-    for (shifterIndex = 0; shifterIndex < colonIndex; shifterIndex++) {
-        printf("%c", key[shifterIndex]);
-        shifter[shifterIndex] = key[shifterIndex];
+    if (encryptedFile == NULL) {
+        perror("could not read PepeSadge\n");
+        return 1;
     }
     
-    shifter[colonIndex] = '\0';
-/* SHIFTER IS NOW COMPLETE */
-    printf("SHIFTER: %s", shifter);
+    char characterBuffer[1];
 
+    char *decryptedText = malloc(1);
 
-    free(shifter);
-    //free(asciiMultiplier);
+    int capacity = 1;
+
+    int index = 0;
+
+    while (fread(characterBuffer, 1, 1, encryptedFile) == 1) {
+
+        if (index >= capacity) {
+            decryptedText = (char *)realloc(decryptedText, capacity * sizeof(char));
+
+            if (decryptedText == NULL) {
+                perror("memory allocation failed.");
+                free(decryptedText);
+                return 1;
+            }
+
+            capacity++;
+        }
+
+        printf("%d \n", characterBuffer[0]);
+
+        decryptedText[index] = (characterBuffer[0]) / atoi(key);
+
+        index++;
+
+    }
+
+    printf("decrypted: %s", decryptedText);
+
+    free(decryptedText);
 
     return 0;
 }
@@ -72,37 +81,31 @@ int encryption(void) {
 
     char characterBuffer[1];
 
-    char *encryptedText = malloc(1);
+    char *encryptedText = malloc(sizeof(char));
 
-    int capacity = 1;
+    int capacity = 0;
 
     int index = 0;
 
     srand(time(NULL) + getpid());
 
     int asciiShifter = rand();
-    int *pShifter = &asciiShifter;
 
-    int asciiMultiplier = rand();
-    int *pMulti = &asciiMultiplier;
-
-    size_t dataSize = sizeof(int);
+    size_t dataSize = sizeof(char);
 
     while (fread(characterBuffer, 1, 1, pFile) == 1) {
-
+            // test  -->  0, 1, 2, 3
         if (index >= capacity) {
-            encryptedText = (char *)realloc(encryptedText, capacity * sizeof(char));
-
-            if (encryptedText == NULL) {
-                perror("memory allocation failed.");
-                free(encryptedText);
-                return 1;
-            }
-
             capacity++;
+            encryptedText = realloc(encryptedText, capacity * dataSize);
+            printf("capacity %d\n", capacity);
+            printf("allocated\n");
+
         }
 
-        encryptedText[index] = (characterBuffer[0] - asciiShifter) * asciiMultiplier;
+        encryptedText[index] = (characterBuffer[0]) - 1;
+
+        printf("%d %c\n", encryptedText[index], encryptedText[index]);
 
         index++;
 
@@ -110,11 +113,13 @@ int encryption(void) {
 
     printf("\n");
 
+    encryptedText[capacity] = '\0';
+
     printf("Encrypted Text: %s", encryptedText);
 
     printf("\n");
 
-    printf("Your decryption key: %d:%d", asciiShifter, asciiMultiplier);
+    printf("Your decryption key: %d", asciiShifter);
 
     fclose(pFile);
 
@@ -122,24 +127,24 @@ int encryption(void) {
 
     fprintf_s(pFileWrite, encryptedText);
 
-    memset(pShifter, 0, dataSize);
-    memset(pMulti, 0, dataSize);
-
     printf("\n");
+
+    fclose(pFileWrite);
+
+    asciiShifter = 0;
 
     printf("check if asciiShifter erased: %d", asciiShifter);
     printf("\n");
-    printf("check if asciiMultiplier erased: %d", asciiMultiplier);
+
+    free(encryptedText);
 
 }
 
 int main(int argc, char *argv[]) {
 
-    printf("%s", argv[1]);
-
     int selectedMode = checkProgramMode(argv[1]);
 
-    printf("%d", selectedMode);
+    printf("%s %d ", argv[1], selectedMode);
 
     /* IF MODE IS ENCRYPT RUN ENCRYPTION FUNCTION
     
