@@ -4,7 +4,64 @@
 #include <unistd.h>
 #include <string.h>
 
-int main(void) {
+int checkProgramMode(char userChoice[]);
+int encryption(void);
+int decryption(char key[]);
+
+int checkProgramMode(char userChoice[]) {
+
+    if (strcmp(userChoice, "encrypt") == 0) {
+        return 3;
+    }
+    else if (strcmp(userChoice, "decrypt") == 0) {
+        return 2;
+    }
+    else {
+        return 1;
+    }
+
+}
+
+int decryption(char key[]) {
+
+    printf("key %s\n", key);
+    int index;
+    int shifterIndex;
+    int multiplierIndex;
+    int colonIndex;
+
+    int shifterCapacity = 1;
+    int multiCapacity = 1;
+
+    //char asciiMultiplier = 
+
+    for (index = 0; key[index] != '\0'; index++) {
+
+        if (key[index] == ':') {
+            printf("found colon\n");
+            colonIndex = index;
+        }
+    }
+
+    char *shifter = (char *) malloc(colonIndex * sizeof(char));
+
+    for (shifterIndex = 0; shifterIndex < colonIndex; shifterIndex++) {
+        printf("%c", key[shifterIndex]);
+        shifter[shifterIndex] = key[shifterIndex];
+    }
+    
+    shifter[colonIndex] = '\0';
+/* SHIFTER IS NOW COMPLETE */
+    printf("SHIFTER: %s", shifter);
+
+
+    free(shifter);
+    //free(asciiMultiplier);
+
+    return 0;
+}
+
+int encryption(void) {
 
     FILE *pFile = fopen("PLAINTEXT.txt", "r");
 
@@ -57,13 +114,13 @@ int main(void) {
 
     printf("\n");
 
-    
-
     printf("Your decryption key: %d:%d", asciiShifter, asciiMultiplier);
 
     fclose(pFile);
 
-    
+    FILE *pFileWrite = fopen("PLAINTEXT.txt", "w");
+
+    fprintf_s(pFileWrite, encryptedText);
 
     memset(pShifter, 0, dataSize);
     memset(pMulti, 0, dataSize);
@@ -73,5 +130,29 @@ int main(void) {
     printf("check if asciiShifter erased: %d", asciiShifter);
     printf("\n");
     printf("check if asciiMultiplier erased: %d", asciiMultiplier);
+
+}
+
+int main(int argc, char *argv[]) {
+
+    printf("%s", argv[1]);
+
+    int selectedMode = checkProgramMode(argv[1]);
+
+    printf("%d", selectedMode);
+
+    /* IF MODE IS ENCRYPT RUN ENCRYPTION FUNCTION
+    
+    IF MODE IS DECRYPT RUN DECRYPTION FUNCTION */
+
+    if (selectedMode == 3) {
+        encryption();
+    }
+    else if (selectedMode == 2) {
+        decryption(argv[2]);
+    }
+    else {
+        printf("no valid option selected\n");
+    }
 
 }
