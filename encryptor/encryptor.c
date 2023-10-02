@@ -73,8 +73,16 @@ int decryption(char key[]) {
     decryptedText[capacity] = '\0';
 
     printf("decrypted: %s", decryptedText);
+    
+    fclose(encryptedFile);
+
+    FILE *pFileWrite = fopen("PLAINTEXT.txt", "w");
+
+    fprintf_s(pFileWrite, decryptedText);
 
     free(decryptedText);
+
+    fclose(pFileWrite);
 
     return 0;
 }
